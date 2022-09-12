@@ -26,8 +26,13 @@ resource "aws_instance" "SshKeyTest" {
   }
 }
 
+data "aws_vpc" "default" {
+  default = true
+}
+
 resource "aws_security_group" "main" {
-  vpc_id = "vpc-3cfca05b"
+  # vpc_id = "vpc-3cfca05b"
+  vpc_id = data.aws_vpc.default.id
   egress = [
     {
       cidr_blocks      = ["0.0.0.0/0", ]
