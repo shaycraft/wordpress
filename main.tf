@@ -1,6 +1,55 @@
-provider "aws" {
-  region = "us-west-2"
+variable "AWS_REGION" {
+  type = string
+  default = "us-west-2"
+}
 
+provider "aws" {
+  region = "${var.AWS_REGION}"
+}
+
+resource "aws_vpc" "issa-private-vpc" {
+  cidr_block = "10.0.0.0/16"
+  enable_dns_support = true
+  enable_dns_hostnames = true
+  instance_tenancy = "default"
+
+  tags = {
+    Name = "issa-private-vpc"
+  }
+}
+
+resource "aws_subnet" "issa-private-subnet" {
+  vpc_id = "${aws_vpc.issa-private-vpc.id}"
+  cidr_block = "10.0.1.0/24"
+  map_public_ip_on_launch = false  // makes it a private subnet
+  availability_zone = "us-west-2b"
+}
+
+resource "aws_internet_gateway" "issa-igw" {
+    vpc_id = "${aws_vpc.issa-private-vpc.id}"
+    tags = {
+        Name = "issa-igw"
+    }
+}
+
+resource "aws_route_table" "issa-route-table" {
+    vpc_id = "${aws_vpc.issa-private-vpc.id}"
+    
+    route {
+        //associated subnet can reach everywhere
+        cidr_block = "0.0.0.0/0" 
+        //CRT uses this IGW to reach internet
+        gateway_id = "${aws_internet_gateway.issa-igw.id}" 
+    }
+    
+    tags = {
+        Name = "issa-crt"
+    }
+}
+
+resource "aws_route_table_association" "issa-crta-private-subnet"{
+    subnet_id = "${aws_subnet.issa-private-subnet.id}"
+    route_table_id = "${aws_route_table.issa-route-table.id}"
 }
 
 resource "aws_key_pair" "sam_test_new_key" {
@@ -15,13 +64,14 @@ resource "aws_instance" "SshKeyTest" {
   tags = {
     Name = "SshKeyTest"
   }
-  vpc_security_group_ids = [aws_security_group.main.id]
+  subnet_id = aws_subnet.issa-private-subnet.id
+  vpc_security_group_ids = [aws_security_group.issa-security-group.id]
 
   connection {
     type        = "ssh"
     host        = self.public_ip
     user        = "ubuntu"
-    private_key = file("/Users/shaycraft/.ssh/id_rsa_aws_terraform_tutorial")
+    key = file("/Users/shaycraft/.ssh/id_rsa_aws_terraform_tutorial")
     timeout     = "4m"
   }
 }
@@ -30,9 +80,8 @@ data "aws_vpc" "default" {
   default = true
 }
 
-resource "aws_security_group" "main" {
-  # vpc_id = "vpc-3cfca05b"
-  vpc_id = data.aws_vpc.default.id
+resource "aws_security_group" "issa-security-group" {
+  vpc_id = "${aws_vpc.issa-private-vpc.id}"
   egress = [
     {
       cidr_blocks      = ["0.0.0.0/0", ]
