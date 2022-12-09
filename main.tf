@@ -11,7 +11,7 @@ resource "aws_key_pair" "sam_test_new_key" {
 resource "aws_instance" "SshKeyTest" {
   ami           = "ami-a58d0dc5"
   instance_type = "t2.micro"
-  key_name = "sam_test_new_key"
+  key_name      = "sam_test_new_key"
   tags = {
     Name = "SshKeyTest"
   }
@@ -29,6 +29,7 @@ resource "aws_instance" "SshKeyTest" {
 data "aws_vpc" "default" {
   default = true
 }
+
 
 resource "aws_security_group" "main" {
   # vpc_id = "vpc-3cfca05b"
@@ -49,7 +50,7 @@ resource "aws_security_group" "main" {
   ingress = [
     {
       cidr_blocks      = ["0.0.0.0/0", ]
-      description      = ""
+      description      = "SSH Port"
       from_port        = 22
       ipv6_cidr_blocks = []
       prefix_list_ids  = []
@@ -57,6 +58,28 @@ resource "aws_security_group" "main" {
       security_groups  = []
       self             = false
       to_port          = 22
+    },
+    {
+      cidr_blocks      = ["0.0.0.0/0", ]
+      description      = "HTTP port"
+      from_port        = 80
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      protocol         = "tcp"
+      security_groups  = []
+      self             = false
+      to_port          = 80
+    },
+    {
+      cidr_blocks      = ["0.0.0.0/0", ]
+      description      = "HTTPS port"
+      from_port        = 443
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      protocol         = "tcp"
+      security_groups  = []
+      self             = false
+      to_port          = 443
     }
   ]
 }
