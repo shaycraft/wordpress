@@ -1,3 +1,6 @@
+# for instructions to setup wordpress manually, see 
+# https://ubuntu.com/tutorials/install-and-configure-wordpress?utm_source=pocket_reader#1-overview
+
 variable "AWS_REGION" {
   type    = string
   default = "us-west-2"
@@ -52,13 +55,24 @@ resource "aws_route_table_association" "issa-crta-private-subnet" {
   route_table_id = aws_route_table.issa-route-table.id
 }
 
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+  }
+
+  owners = ["099720109477"]
+}
+
 resource "aws_key_pair" "sam_test_new_key" {
   key_name   = "sam_test_new_key"
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCzIp5hD3rNeWZ0PIpZX0jfrZ/Zhs58fcnQspmhe+vAh7ya6SYPVFSX0uTA9baED6cNFgm+POwR0V9B73duxgcG48sXLOTRqOEm+gOJwxA52cXsSv/LYj6FwWMXJlBzreg7QUlsx61Jqrb8zYXNiERv9buNj91QP8VICJZx1liPQiy3dkOMB6W+fr21rbUtZjZSsb/j/M8K7WtA+WDP5J7M4YFeIfOUejR3D1/79jMOgae0+AtkMe4b2Ln+7+AsPcRfOChkZjCBKEodtL1o45afBAqQDZoknCbY4vtyrBD3KHrOhzvIBAPkgRIAWbfD3SSzEIooFKPP4Xiq7L9o8S2N shaycraft@Samuels-MacBook-Pro.local"
 }
 
 resource "aws_instance" "SshKeyTest" {
-  ami           = "ami-a58d0dc5"
+  ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
   key_name      = "sam_test_new_key"
   tags = {
