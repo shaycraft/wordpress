@@ -8,12 +8,12 @@ resource "aws_key_pair" "sam_test_new_key" {
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCzIp5hD3rNeWZ0PIpZX0jfrZ/Zhs58fcnQspmhe+vAh7ya6SYPVFSX0uTA9baED6cNFgm+POwR0V9B73duxgcG48sXLOTRqOEm+gOJwxA52cXsSv/LYj6FwWMXJlBzreg7QUlsx61Jqrb8zYXNiERv9buNj91QP8VICJZx1liPQiy3dkOMB6W+fr21rbUtZjZSsb/j/M8K7WtA+WDP5J7M4YFeIfOUejR3D1/79jMOgae0+AtkMe4b2Ln+7+AsPcRfOChkZjCBKEodtL1o45afBAqQDZoknCbY4vtyrBD3KHrOhzvIBAPkgRIAWbfD3SSzEIooFKPP4Xiq7L9o8S2N shaycraft@Samuels-MacBook-Pro.local"
 }
 
-resource "aws_instance" "SshKeyTest" {
+resource "aws_instance" "Wordpresstest" {
   ami           = "ami-066a7813060ab2ab4"
   instance_type = "t2.micro"
   key_name      = "sam_test_new_key"
   tags = {
-    Name = "SshKeyTest"
+    Name = "WordpressTest"
   }
   vpc_security_group_ids = [aws_security_group.main.id]
 
