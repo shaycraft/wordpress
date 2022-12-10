@@ -1,6 +1,20 @@
+# for instructions to setup wordpress manually, see 
+# https://ubuntu.com/tutorials/install-and-configure-wordpress?utm_source=pocket_reader#1-overview
+
 provider "aws" {
   region = "us-west-2"
 
+}
+
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+  }
+
+  owners = ["099720109477"]
 }
 
 resource "aws_key_pair" "sam_test_new_key" {
@@ -9,7 +23,7 @@ resource "aws_key_pair" "sam_test_new_key" {
 }
 
 resource "aws_instance" "SshKeyTest" {
-  ami           = "ami-a58d0dc5"
+  ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
   key_name      = "sam_test_new_key"
   tags = {
