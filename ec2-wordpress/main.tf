@@ -9,7 +9,7 @@ resource "aws_key_pair" "sam_test_new_key" {
 }
 
 resource "aws_instance" "Wordpresstest" {
-  ami           = "ami-066a7813060ab2ab4"
+  ami           = "ami-0397abf91212932d1"
   instance_type = "t2.micro"
   key_name      = "sam_test_new_key"
   tags = {
@@ -20,7 +20,7 @@ resource "aws_instance" "Wordpresstest" {
   connection {
     type        = "ssh"
     host        = self.public_ip
-    user        = "ubuntu"
+    user        = "admin"
     private_key = file("/Users/shaycraft/.ssh/id_rsa_aws_terraform_tutorial")
     timeout     = "4m"
   }
